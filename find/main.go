@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/islishude/demo/mongo/instance"
 	"github.com/islishude/demo/mongo/schema"
-	"github.com/mongodb/mongo-go-driver/mongo"
 )
 
 func checkError(err error) {
@@ -20,22 +20,12 @@ var dbName = "test"
 var url = "mongodb://127.0.0.1:27017"
 
 func find() {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	client, err := mongo.NewClient(url)
-	checkError(err)
-
-	err = client.Connect(ctx)
-	checkError(err)
-
-	collection := client.Database(dbName).Collection(tableName)
-
-	cur, err := collection.Find(ctx, map[string]string{"from": "a"})
+	defer demoMongo.MongoCancel()
+	cur, err := demoMongo.MongoTrxCollection.Find(demoMongo.MongoCtx, map[string]string{"from": "a"})
 	checkError(err)
 	defer cur.Close(context.Background())
 
-	for cur.Next(ctx) {
+	for cur.Next(demoMongo.MongoCtx) {
 		tmp := new(demoTest.Trx)
 		checkError(cur.Decode(tmp))
 		fmt.Printf("%+v\n", tmp)
@@ -45,18 +35,8 @@ func find() {
 }
 
 func findOne() {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	client, err := mongo.NewClient(url)
-	checkError(err)
-
-	err = client.Connect(ctx)
-	checkError(err)
-
-	collection := client.Database(dbName).Collection(tableName)
-
-	result := collection.FindOne(ctx, map[string]string{"from": "a"})
+	defer demoMongo.MongoCancel()
+	result := demoMongo.MongoTrxCollection.FindOne(demoMongo.MongoCtx, map[string]string{"from": "a"})
 
 	tmp := new(demoTest.Trx)
 	checkError(result.Decode(tmp))

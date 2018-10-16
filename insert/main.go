@@ -1,12 +1,11 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
 
+	"github.com/islishude/demo/mongo/instance"
 	"github.com/islishude/demo/mongo/schema"
-	"github.com/mongodb/mongo-go-driver/mongo"
 )
 
 func checkError(err error) {
@@ -20,17 +19,7 @@ var dbName = "test"
 var url = "mongodb://127.0.0.1:27017"
 
 func insertMany() {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	client, err := mongo.NewClient(url)
-	checkError(err)
-
-	err = client.Connect(ctx)
-	checkError(err)
-
-	collection := client.Database(dbName).Collection(tableName)
-
+	defer demoMongo.MongoCancel()
 	var bulk []interface{}
 
 	for i := 0; i < 10; i++ {
@@ -45,23 +34,12 @@ func insertMany() {
 		bulk = append(bulk, tmp)
 	}
 
-	_, err = collection.InsertMany(ctx, bulk)
-
+	_, err := demoMongo.MongoTrxCollection.InsertMany(demoMongo.MongoCtx, bulk)
 	checkError(err)
 }
 
 func insertOne() {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	client, err := mongo.NewClient(url)
-	checkError(err)
-
-	err = client.Connect(ctx)
-	checkError(err)
-
-	collection := client.Database(dbName).Collection(tableName)
-
+	defer demoMongo.MongoCancel()
 	tmp := demoTest.Trx{
 		TxID:      "0",
 		Height:    0,
@@ -70,9 +48,7 @@ func insertOne() {
 		From:      "a",
 		To:        "b",
 	}
-
-	_, err = collection.InsertOne(ctx, tmp)
-
+	_, err := demoMongo.MongoTrxCollection.InsertOne(demoMongo.MongoCtx, tmp)
 	checkError(err)
 }
 
