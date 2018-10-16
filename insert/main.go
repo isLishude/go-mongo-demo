@@ -1,24 +1,23 @@
-package main
+package demoInsert
 
 import (
 	"fmt"
-	"log"
 
+	"github.com/islishude/demo/mongo/helper"
 	"github.com/islishude/demo/mongo/instance"
 	"github.com/islishude/demo/mongo/schema"
 )
 
-func checkError(err error) {
-	if err != nil {
-		log.Fatal(err)
-	}
+func init() {
+	fmt.Println("demo insert running")
 }
 
 var tableName = "trx"
 var dbName = "test"
 var url = "mongodb://127.0.0.1:27017"
 
-func insertMany() {
+// InsertManyDemo is for `insertMany`
+func InsertManyDemo() {
 	defer demoMongo.MongoCancel()
 	var bulk []interface{}
 
@@ -35,10 +34,11 @@ func insertMany() {
 	}
 
 	_, err := demoMongo.MongoTrxCollection.InsertMany(demoMongo.MongoCtx, bulk)
-	checkError(err)
+	demoHelper.CheckError(err)
 }
 
-func insertOne() {
+// InsertOneDemo is for `insertOne`
+func InsertOneDemo() {
 	defer demoMongo.MongoCancel()
 	tmp := demoTest.Trx{
 		TxID:      "0",
@@ -49,9 +49,5 @@ func insertOne() {
 		To:        "b",
 	}
 	_, err := demoMongo.MongoTrxCollection.InsertOne(demoMongo.MongoCtx, tmp)
-	checkError(err)
-}
-
-func main() {
-	//
+	demoHelper.CheckError(err)
 }

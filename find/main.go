@@ -1,48 +1,47 @@
-package main
+package demoFind
 
 import (
 	"context"
 	"fmt"
-	"log"
 
+	"github.com/islishude/demo/mongo/helper"
 	"github.com/islishude/demo/mongo/instance"
 	"github.com/islishude/demo/mongo/schema"
 )
 
-func checkError(err error) {
-	if err != nil {
-		log.Fatal(err)
-	}
+func init() {
+	fmt.Println("demo find running")
 }
 
 var tableName = "trx"
 var dbName = "test"
 var url = "mongodb://127.0.0.1:27017"
 
-func find() {
+// FindDemo is
+func FindDemo() {
 	defer demoMongo.MongoCancel()
 	cur, err := demoMongo.MongoTrxCollection.Find(demoMongo.MongoCtx, map[string]string{"from": "a"})
-	checkError(err)
+	demoHelper.CheckError(err)
 	defer cur.Close(context.Background())
 
 	for cur.Next(demoMongo.MongoCtx) {
 		tmp := new(demoTest.Trx)
-		checkError(cur.Decode(tmp))
+		demoHelper.CheckError(cur.Decode(tmp))
 		fmt.Printf("%+v\n", tmp)
 	}
 
-	checkError(cur.Err())
+	demoHelper.CheckError(cur.Err())
 }
 
-func findOne() {
+// FindOneDemo is
+func FindOneDemo() {
 	defer demoMongo.MongoCancel()
 	result := demoMongo.MongoTrxCollection.FindOne(demoMongo.MongoCtx, map[string]string{"from": "a"})
 
 	tmp := new(demoTest.Trx)
-	checkError(result.Decode(tmp))
+	if err := result.Decode(tmp); err != nil {
+		fmt.Println(err)
+		return
+	}
 	fmt.Printf("%+v\n", tmp)
-}
-
-func main() {
-	///
 }

@@ -33,7 +33,7 @@ var collectionName = "trx"
 func init() {
 
 	MongoCtx, MongoCancel = context.WithCancel(context.Background())
-	MongoClient, err := mongo.NewClientWithOptions("mongodb://127.0.0.1:27017")
+	MongoClient, err := mongo.NewClient("mongodb://127.0.0.1:27017")
 
 	if err != nil {
 		log.Fatal(err)
@@ -45,8 +45,4 @@ func init() {
 
 	MongoDatabase = MongoClient.Database(mongoInstanceName)
 	MongoTrxCollection = MongoDatabase.Collection(collectionName)
-
-	if err := MongoClient.Connect(MongoCtx); err != nil {
-		log.Fatal(err)
-	}
 }

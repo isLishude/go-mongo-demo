@@ -1,34 +1,34 @@
-package main
+package demoIndex
 
 import (
 	"context"
 	"fmt"
 	"log"
 
+	"github.com/islishude/demo/mongo/helper"
 	"github.com/mongodb/mongo-go-driver/bson"
 	"github.com/mongodb/mongo-go-driver/mongo"
 )
 
-func checkError(err error) {
-	if err != nil {
-		log.Fatal(err)
-	}
+func init() {
+	fmt.Println("demo index running")
 }
 
 var tableName = "trx"
 var dbName = "test"
 var url = "mongodb://127.0.0.1:27017"
 
+// IndexBuildDemo is
 // TODO: wait for driver fix IndexView export bug
-func indexBuild() {
+func IndexBuildDemo() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	client, err := mongo.NewClient(url)
-	checkError(err)
+	demoHelper.CheckError(err)
 
 	err = client.Connect(ctx)
-	checkError(err)
+	demoHelper.CheckError(err)
 
 	// collection := client.Database(dbName).Collection(tableName)
 
@@ -46,8 +46,4 @@ func indexBuild() {
 	}
 
 	fmt.Println(res)
-}
-
-func main() {
-	//
 }
