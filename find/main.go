@@ -40,7 +40,7 @@ func FindOneDemo() {
 
 	tmp := new(demoTest.Trx)
 	if err := result.Decode(tmp); err != nil {
-		fmt.Println(err)
+		fmt.Println("[Mongo::FindOne] nothing found")
 		return
 	}
 	fmt.Printf("%+v\n", tmp)
