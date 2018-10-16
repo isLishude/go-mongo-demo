@@ -42,6 +42,13 @@ type Trx struct {
 	To        string `bson:"to" json:"to"`
 }
 
+// CheckError is to check it error and exit
+func CheckError(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 func main() {
 	MongoCtx, MongoCancel = context.WithCancel(context.Background())
 	MongoClient, err := mongo.Connect(MongoCtx, connectionString)

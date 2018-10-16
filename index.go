@@ -11,8 +11,6 @@ import (
 
 // IndexBuildDemo is
 func IndexBuildDemo() {
-	defer MongoCancel()
-
 	index := mongo.IndexModel{
 		Keys:    bson.NewDocument(bson.EC.Int32("txid", int32(1))),
 		Options: mongo.NewIndexOptionsBuilder().Background(true).Build(),
@@ -29,8 +27,6 @@ func IndexBuildDemo() {
 
 // GetIndexes is
 func GetIndexes() {
-	defer MongoCancel()
-
 	cur, err := MongoTrxCollection.Indexes().List(MongoCtx)
 	CheckError(err)
 

@@ -6,7 +6,6 @@ import (
 
 // InsertManyDemo is for `insertMany`
 func InsertManyDemo() {
-	defer MongoCancel()
 	var bulk []interface{}
 
 	for i := 0; i < 10; i++ {
@@ -21,13 +20,13 @@ func InsertManyDemo() {
 		bulk = append(bulk, tmp)
 	}
 
-	_, err := MongoTrxCollection.InsertMany(MongoCtx, bulk)
+	res, err := MongoTrxCollection.InsertMany(MongoCtx, bulk)
 	CheckError(err)
+	fmt.Printf("%#v", res)
 }
 
 // InsertOneDemo is for `insertOne`
 func InsertOneDemo() {
-	defer MongoCancel()
 	tmp := Trx{
 		TxID:      "0",
 		Height:    0,
@@ -36,6 +35,7 @@ func InsertOneDemo() {
 		From:      "a",
 		To:        "b",
 	}
-	_, err := MongoTrxCollection.InsertOne(MongoCtx, tmp)
+	res, err := MongoTrxCollection.InsertOne(MongoCtx, tmp)
 	CheckError(err)
+	fmt.Printf("%#v", res)
 }

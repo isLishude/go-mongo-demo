@@ -5,14 +5,6 @@ import (
 	"fmt"
 )
 
-func init() {
-	fmt.Println("demo find running")
-}
-
-var tableName = "trx"
-var dbName = "test"
-var url = "mongodb://127.0.0.1:27017"
-
 // FindDemo is
 func FindDemo() {
 	cur, err := MongoTrxCollection.Find(MongoCtx, map[string]string{"from": "a"})
@@ -30,7 +22,6 @@ func FindDemo() {
 
 // FindOneDemo is
 func FindOneDemo() {
-	defer MongoCancel()
 	result := MongoTrxCollection.FindOne(MongoCtx, map[string]string{"from": "a"})
 
 	tmp := new(Trx)
