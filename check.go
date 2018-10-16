@@ -1,4 +1,4 @@
-package demoHelper
+package main
 
 import (
 	"log"
