@@ -34,7 +34,9 @@ func GetIndexes() {
 
 	res := make(map[string]interface{})
 	for cur.Next(context.TODO()) {
-		cur.Decode(&res)
+		if err = cur.Decode(&res); err != nil {
+			log.Fatal(err)
+		}
 	}
 	if err := cur.Err(); err != nil {
 		log.Fatal(err)
