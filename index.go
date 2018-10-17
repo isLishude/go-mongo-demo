@@ -25,16 +25,15 @@ func IndexBuildDemo() {
 	fmt.Println(res)
 }
 
-// GetIndexes is
-func GetIndexes() {
+// GetIndexesDemo is
+func GetIndexesDemo() {
 	cur, err := MongoTrxCollection.Indexes().List(MongoCtx)
 	CheckError(err)
-
 	defer cur.Close(MongoCtx)
 
 	res := make(map[string]interface{})
 	for cur.Next(context.TODO()) {
-		if err = cur.Decode(&res); err != nil {
+		if err = cur.Decode(res); err != nil {
 			log.Fatal(err)
 		}
 	}
