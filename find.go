@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/globalsign/mgo"
+
 	"github.com/globalsign/mgo/bson"
 )
 
@@ -21,7 +23,11 @@ func findOneDemo() {
 	tmp := Trx{}
 	err := TrxColl.Find(bson.M{"from": "a"}).One(&tmp)
 
-	// if found nothing then reports error
+	if err == mgo.ErrNotFound {
+		fmt.Println("Not found")
+		return
+	}
+
 	if err != nil {
 		log.Fatal(err)
 	}
