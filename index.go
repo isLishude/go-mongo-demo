@@ -5,14 +5,19 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/mongodb/mongo-go-driver/bson"
 	"github.com/mongodb/mongo-go-driver/mongo"
+	"github.com/mongodb/mongo-go-driver/x/bsonx"
 )
 
 // IndexBuildDemo is
 func IndexBuildDemo() {
 	index := mongo.IndexModel{
-		Keys:    bson.NewDocument(bson.EC.Int32("txid", int32(1))),
+		Keys: bsonx.Doc{
+			bsonx.Elem{
+				Key:   "txid",
+				Value: bsonx.Int32(1),
+			},
+		},
 		Options: mongo.NewIndexOptionsBuilder().Background(true).Build(),
 	}
 

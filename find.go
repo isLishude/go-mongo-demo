@@ -3,11 +3,13 @@ package main
 import (
 	"context"
 	"fmt"
+
+	"github.com/mongodb/mongo-go-driver/bson"
 )
 
 // FindDemo is
 func FindDemo() {
-	cur, err := MongoTrxCollection.Find(MongoCtx, map[string]string{"from": "a"})
+	cur, err := MongoTrxCollection.Find(MongoCtx, bson.M{"from": "a"})
 	CheckError(err)
 	defer cur.Close(context.Background())
 
@@ -22,7 +24,7 @@ func FindDemo() {
 
 // FindOneDemo is
 func FindOneDemo() {
-	result := MongoTrxCollection.FindOne(MongoCtx, map[string]string{"from": "a"})
+	result := MongoTrxCollection.FindOne(MongoCtx, bson.M{"from": "a"})
 
 	tmp := new(Trx)
 	if err := result.Decode(tmp); err != nil {
