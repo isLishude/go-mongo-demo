@@ -14,8 +14,8 @@ func FindDemo() {
 	defer cur.Close(context.Background())
 
 	for cur.Next(MongoCtx) {
-		tmp := new(Trx)
-		CheckError(cur.Decode(tmp))
+		var tmp Trx
+		CheckError(cur.Decode(&tmp))
 		fmt.Printf("%+v\n", tmp)
 	}
 
@@ -26,8 +26,8 @@ func FindDemo() {
 func FindOneDemo() {
 	result := MongoTrxCollection.FindOne(MongoCtx, bson.M{"from": "a"})
 
-	tmp := new(Trx)
-	if err := result.Decode(tmp); err != nil {
+	var tmp Trx
+	if err := result.Decode(&tmp); err != nil {
 		fmt.Println("[Mongo::FindOne] nothing found")
 		return
 	}
