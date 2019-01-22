@@ -5,20 +5,16 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/mongodb/mongo-go-driver/bson"
 	"github.com/mongodb/mongo-go-driver/mongo"
-	"github.com/mongodb/mongo-go-driver/x/bsonx"
+	"github.com/mongodb/mongo-go-driver/mongo/options"
 )
 
 // IndexBuildDemo is
 func IndexBuildDemo() {
 	index := mongo.IndexModel{
-		Keys: bsonx.Doc{
-			bsonx.Elem{
-				Key:   "txid",
-				Value: bsonx.Int32(1),
-			},
-		},
-		Options: mongo.NewIndexOptionsBuilder().Background(true).Build(),
+		Keys:    bson.M{"txid": 1},
+		Options: options.Index().SetBackground(true),
 	}
 
 	res, err := MongoTrxCollection.Indexes().CreateOne(MongoCtx, index)
