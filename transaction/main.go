@@ -27,7 +27,7 @@ func checkError(err error) {
 }
 
 func main() {
-	uri := "mongodb://127.0.0.1:27017"
+	uri := "mongodb://127.0.0.1:27017/test?replSet=test"
 	dbName := "test"
 	colName := "test"
 	ctx := context.Background()
@@ -48,9 +48,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// TODO FIX
-	// Multi-document transactions are available for replica sets only.
 	{
+		log.Println("Insert 1,2 and commit")
 		ctx := context.Background()
 		ses, err := cli.StartSession()
 		checkError(err)
@@ -60,25 +59,12 @@ func main() {
 
 		err = ses.StartTransaction()
 		checkError(err)
-		_, err = col.InsertOne(mctx, bson.M{"field": "value1"})
+
+		_, err = col.InsertOne(mctx, bson.M{"field": "1"})
 		checkError(err)
-		_, err = col.InsertOne(mctx, bson.M{"field": "value2"})
-		checkError(err)
-		_, err = col.InsertOne(mctx, bson.M{"field": "value3"})
-		checkError(err)
-		_, err = col.InsertOne(mctx, bson.M{"field": "value4"})
-		checkError(err)
-		err = ses.AbortTransaction(mctx)
+		_, err = col.InsertOne(mctx, bson.M{"field": "2"})
 		checkError(err)
 
-		mctx2 := contextWithSession(ctx, ses)
-
-		ses2, err := cli.StartSession()
-		checkError(err)
-		defer ses2.EndSession(ctx)
-
-		_, err = col.InsertOne(mctx2, bson.M{"field": "value4"})
-		checkError(err)
 		err = ses.CommitTransaction(mctx)
 		checkError(err)
 	}

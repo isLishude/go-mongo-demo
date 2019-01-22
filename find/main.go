@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	uri := "mongodb://127.0.0.1:27017"
+	uri := "mongodb://127.0.0.1:27017/?replSet=test"
 	dbName := "test"
 	colName := "test"
 	ctx := context.Background()
@@ -25,7 +25,7 @@ func main() {
 
 	// Find
 	{
-		cur, err := col.Find(ctx, bson.M{"field": "value1"})
+		cur, err := col.Find(ctx, bson.M{"field": "value0"})
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -44,7 +44,7 @@ func main() {
 	}
 	// FindOne
 	{
-		result := col.FindOne(ctx, bson.M{"field": "value1"})
+		result := col.FindOne(ctx, bson.M{"field": "value0"})
 		tmp := make(map[string]interface{})
 		if err := result.Decode(&tmp); err != nil {
 			log.Fatal(err)

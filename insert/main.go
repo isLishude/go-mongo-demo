@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 
 	"github.com/mongodb/mongo-go-driver/bson"
@@ -10,7 +9,7 @@ import (
 )
 
 func main() {
-	uri := "mongodb://127.0.0.1:27017"
+	uri := "mongodb://127.0.0.1:27017/?replSet=test"
 	dbName := "test"
 	colName := "test"
 	ctx := context.Background()
@@ -30,21 +29,16 @@ func main() {
 			tmp := bson.M{"field": i}
 			bulk = append(bulk, tmp)
 		}
-
-		res, err := col.InsertMany(ctx, bulk)
-		if err != nil {
+		if _, err := col.InsertMany(ctx, bulk); err != nil {
 			log.Fatal(err)
 		}
-		fmt.Printf("%+v\n", res)
 	}
 
 	// InsertOne
 	{
 		tmp := bson.M{"field": 11}
-		res, err := col.InsertOne(ctx, tmp)
-		if err != nil {
+		if _, err := col.InsertOne(ctx, tmp); err != nil {
 			log.Fatal(err)
 		}
-		fmt.Printf("%+v", res)
 	}
 }

@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	uri := "mongodb://127.0.0.1:27017"
+	uri := "mongodb://127.0.0.1:27017/?replSet=test"
 	dbName := "test"
 	colName := "test"
 	ctx := context.Background()
@@ -30,12 +30,11 @@ func main() {
 			Keys:    bson.M{"txid": 1},
 			Options: options.Index().SetBackground(true),
 		}
-		res, err := col.Indexes().CreateOne(ctx, index)
-		if err != nil {
+		if _, err := col.Indexes().CreateOne(ctx, index); err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println(res)
 	}
+
 	// Get index list
 	{
 		cur, err := col.Indexes().List(ctx)
@@ -46,13 +45,13 @@ func main() {
 
 		res := make(map[string]interface{})
 		for cur.Next(context.TODO()) {
-			if err = cur.Decode(res); err != nil {
+			if err = cur.Decode(&res); err != nil {
 				log.Fatal(err)
 			}
 		}
 		if err := cur.Err(); err != nil {
 			log.Fatal(err)
 		}
-		fmt.Printf("%+v", res)
+		fmt.Printf("%+v\n", res)
 	}
 }
