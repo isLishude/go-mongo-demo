@@ -22,12 +22,7 @@ func main() {
 	}
 	defer cli.Disconnect(nil)
 
-	db := cli.Database(dbName)
-	col := db.Collection(colName)
-	err = db.Drop(context.Background())
-	if err != nil {
-		log.Fatal(err)
-	}
+	col := cli.Database(dbName).Collection(colName)
 
 	// create collection
 	if _, err = col.InsertOne(context.Background(), bson.M{"field": "value0"}); err != nil {
@@ -37,7 +32,9 @@ func main() {
 	{
 		log.Println("Insert 1,2 and commit")
 		if err := cli.UseSession(context.Background(), func(mctx mongo.SessionContext) error {
-			mctx.StartTransaction()
+			if err := mctx.StartTransaction(); err != nil {
+				return err
+			}
 
 			if _, err := col.InsertOne(mctx, bson.M{"field": "ACID-01"}); err != nil {
 				return err
@@ -55,7 +52,9 @@ func main() {
 	{
 		log.Println("Insert 3,4 and abort")
 		if err := cli.UseSession(context.Background(), func(mctx mongo.SessionContext) error {
-			mctx.StartTransaction()
+			if err := mctx.StartTransaction(); err != nil {
+				return err
+			}
 
 			if _, err := col.InsertOne(mctx, bson.M{"field": "ACID-03"}); err != nil {
 				return err
