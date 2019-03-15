@@ -11,9 +11,11 @@ import (
 )
 
 func main() {
-	uri := "mongodb://127.0.0.1:27017/?replSet=test"
-	dbName := "test"
-	colName := "test"
+	const (
+		uri     = "mongodb://127.0.0.1:27017,127.0.0.1:27018/admin?replicaSet=test"
+		dbName  = "test"
+		colName = "test"
+	)
 
 	cli, err := mongo.Connect(context.Background(), options.Client().ApplyURI(uri))
 	if err != nil {

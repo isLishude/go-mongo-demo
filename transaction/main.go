@@ -9,28 +9,12 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type sessionContext struct {
-	context.Context
-	mongo.Session
-}
-
-func contextWithSession(ctx context.Context, sess mongo.Session) mongo.SessionContext {
-	return &sessionContext{
-		Context: ctx,
-		Session: sess,
-	}
-}
-
-func checkError(err error) {
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
 func main() {
-	uri := "mongodb://127.0.0.1:27017/?replSet=test"
-	dbName := "test"
-	colName := "test"
+	const (
+		uri     = "mongodb://127.0.0.1:27017,127.0.0.1:27018/admin?replicaSet=test"
+		dbName  = "test"
+		colName = "test"
+	)
 
 	cli, err := mongo.Connect(context.Background(), options.Client().ApplyURI(uri))
 	if err != nil {
@@ -41,7 +25,9 @@ func main() {
 	db := cli.Database(dbName)
 	col := db.Collection(colName)
 	err = db.Drop(context.Background())
-	checkError(err)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// create collection
 	if _, err = col.InsertOne(context.Background(), bson.M{"field": "value0"}); err != nil {
@@ -50,21 +36,37 @@ func main() {
 
 	{
 		log.Println("Insert 1,2 and commit")
-		ses, err := cli.StartSession()
-		checkError(err)
-		defer ses.EndSession(context.Background())
+		if err := cli.UseSession(context.Background(), func(mctx mongo.SessionContext) error {
+			mctx.StartTransaction()
 
-		mctx := contextWithSession(context.Background(), ses)
+			if _, err := col.InsertOne(mctx, bson.M{"field": "ACID-01"}); err != nil {
+				return err
+			}
 
-		err = ses.StartTransaction()
-		checkError(err)
+			if _, err := col.InsertOne(mctx, bson.M{"field": "ACID-01"}); err != nil {
+				return err
+			}
+			return mctx.CommitTransaction(context.Background())
+		}); err != nil {
+			log.Panic(err)
+		}
+	}
 
-		_, err = col.InsertOne(mctx, bson.M{"field": "1"})
-		checkError(err)
-		_, err = col.InsertOne(mctx, bson.M{"field": "2"})
-		checkError(err)
+	{
+		log.Println("Insert 3,4 and abort")
+		if err := cli.UseSession(context.Background(), func(mctx mongo.SessionContext) error {
+			mctx.StartTransaction()
 
-		err = ses.CommitTransaction(mctx)
-		checkError(err)
+			if _, err := col.InsertOne(mctx, bson.M{"field": "ACID-03"}); err != nil {
+				return err
+			}
+
+			if _, err := col.InsertOne(mctx, bson.M{"field": "ACID-04"}); err != nil {
+				return err
+			}
+			return mctx.AbortTransaction(context.Background())
+		}); err != nil {
+			log.Panic(err)
+		}
 	}
 }
