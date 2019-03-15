@@ -4,8 +4,9 @@ import (
 	"context"
 	"log"
 
-	"github.com/mongodb/mongo-go-driver/bson"
-	"github.com/mongodb/mongo-go-driver/mongo"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type sessionContext struct {
@@ -27,35 +28,33 @@ func checkError(err error) {
 }
 
 func main() {
-	uri := "mongodb://127.0.0.1:27017/test?replSet=test"
+	uri := "mongodb://127.0.0.1:27017/?replSet=test"
 	dbName := "test"
 	colName := "test"
-	ctx := context.Background()
 
-	cli, err := mongo.Connect(ctx, uri)
+	cli, err := mongo.Connect(context.Background(), options.Client().ApplyURI(uri))
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer cli.Disconnect(ctx)
+	defer cli.Disconnect(nil)
 
 	db := cli.Database(dbName)
-	err = db.Drop(ctx)
+	col := db.Collection(colName)
+	err = db.Drop(context.Background())
 	checkError(err)
 
-	col := cli.Database(dbName).Collection(colName)
 	// create collection
-	if _, err = col.InsertOne(ctx, bson.M{"field": "value0"}); err != nil {
+	if _, err = col.InsertOne(context.Background(), bson.M{"field": "value0"}); err != nil {
 		log.Fatal(err)
 	}
 
 	{
 		log.Println("Insert 1,2 and commit")
-		ctx := context.Background()
 		ses, err := cli.StartSession()
 		checkError(err)
-		defer ses.EndSession(ctx)
+		defer ses.EndSession(context.Background())
 
-		mctx := contextWithSession(ctx, ses)
+		mctx := contextWithSession(context.Background(), ses)
 
 		err = ses.StartTransaction()
 		checkError(err)

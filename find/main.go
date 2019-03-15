@@ -4,27 +4,30 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
-	"github.com/mongodb/mongo-go-driver/bson"
-	"github.com/mongodb/mongo-go-driver/mongo"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func main() {
 	uri := "mongodb://127.0.0.1:27017/?replSet=test"
 	dbName := "test"
 	colName := "test"
-	ctx := context.Background()
 
-	cli, err := mongo.Connect(ctx, uri)
+	cli, err := mongo.Connect(context.Background(), options.Client().ApplyURI(uri))
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer cli.Disconnect(ctx)
+	defer cli.Disconnect(nil)
 
 	col := cli.Database(dbName).Collection(colName)
 
 	// Find
 	{
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		defer cancel()
 		cur, err := col.Find(ctx, bson.M{"field": "value0"})
 		if err != nil {
 			log.Fatal(err)
@@ -44,6 +47,8 @@ func main() {
 	}
 	// FindOne
 	{
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		defer cancel()
 		result := col.FindOne(ctx, bson.M{"field": "value0"})
 		tmp := make(map[string]interface{})
 		if err := result.Decode(&tmp); err != nil {

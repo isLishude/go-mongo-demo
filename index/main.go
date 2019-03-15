@@ -5,22 +5,21 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/mongodb/mongo-go-driver/bson"
-	"github.com/mongodb/mongo-go-driver/mongo"
-	"github.com/mongodb/mongo-go-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func main() {
 	uri := "mongodb://127.0.0.1:27017/?replSet=test"
 	dbName := "test"
 	colName := "test"
-	ctx := context.Background()
 
-	cli, err := mongo.Connect(ctx, uri)
+	cli, err := mongo.Connect(context.Background(), options.Client().ApplyURI(uri))
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer cli.Disconnect(ctx)
+	defer cli.Disconnect(nil)
 
 	col := cli.Database(dbName).Collection(colName)
 
@@ -30,18 +29,18 @@ func main() {
 			Keys:    bson.M{"txid": 1},
 			Options: options.Index().SetBackground(true),
 		}
-		if _, err := col.Indexes().CreateOne(ctx, index); err != nil {
+		if _, err := col.Indexes().CreateOne(context.Background(), index); err != nil {
 			log.Fatal(err)
 		}
 	}
 
 	// Get index list
 	{
-		cur, err := col.Indexes().List(ctx)
+		cur, err := col.Indexes().List(context.Background())
 		if err != nil {
 			log.Fatal(err)
 		}
-		defer cur.Close(ctx)
+		defer cur.Close(context.Background())
 
 		res := make(map[string]interface{})
 		for cur.Next(context.TODO()) {
