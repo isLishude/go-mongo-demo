@@ -25,24 +25,27 @@ func main() {
 
 	col := cli.Database(dbName).Collection(colName)
 
+	// updated doc should create by "$set" key
+	newdoc := bson.M{"$set": bson.M{"filed": "new"}}
+
 	// Update one
 	{
 		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 		defer cancel()
-		col.UpdateOne(ctx, bson.M{}, bson.M{})
+		col.UpdateOne(ctx, bson.M{"field": "update one"}, newdoc)
 	}
 
 	// upsert one, update one but if not exists insert
 	{
 		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 		defer cancel()
-		col.UpdateOne(ctx, bson.M{}, bson.M{}, options.Update().SetUpsert(true))
+		col.UpdateOne(ctx, bson.M{"field": "upsert one"}, newdoc, options.Update().SetUpsert(true))
 	}
 
 	// update many
 	{
 		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 		defer cancel()
-		col.UpdateMany(ctx, bson.M{}, bson.M{})
+		col.UpdateMany(ctx, bson.M{"field": "update many"}, newdoc)
 	}
 }
