@@ -9,6 +9,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+// make sure that mongod version is ^4.0
+
 func main() {
 	const (
 		uri     = "mongodb://127.0.0.1:27017,127.0.0.1:27018/admin?replicaSet=test"
@@ -22,12 +24,11 @@ func main() {
 	}
 	defer cli.Disconnect(nil)
 
-	col := cli.Database(dbName).Collection(colName)
+	testDb := cli.Database(dbName)
 
-	// create collection
-	if _, err = col.InsertOne(context.Background(), bson.M{"field": "value0"}); err != nil {
-		log.Fatal(err)
-	}
+	// make sure that colltion is created
+	testDb.RunCommand(context.Background(), bson.M{"create": colName})
+	col := testDb.Collection(colName)
 
 	{
 		log.Println("Insert 1,2 and commit")
