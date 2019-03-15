@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -26,41 +25,24 @@ func main() {
 
 	col := cli.Database(dbName).Collection(colName)
 
-	// InsertMany
+	// Update one
 	{
 		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 		defer cancel()
-		var bulk []interface{}
-		for i := 0; i < 10; i++ {
-			tmp := bson.M{"field": i}
-			bulk = append(bulk, tmp)
-		}
-		if _, err := col.InsertMany(ctx, bulk); err != nil {
-			log.Fatal(err)
-		}
+		col.UpdateOne(ctx, bson.M{}, bson.M{})
 	}
 
-	// InsertOne
+	// upsert one, update one but if not exists insert
 	{
 		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 		defer cancel()
-		tmp := bson.M{"field": 11}
-		if _, err := col.InsertOne(ctx, tmp); err != nil {
-			log.Fatal(err)
-		}
+		col.UpdateOne(ctx, bson.M{}, bson.M{}, options.Update().SetUpsert(true))
 	}
 
-	// insert by struct
+	// update many
 	{
-		type user struct {
-			ID   primitive.ObjectID `bson:"_id"` // or omit
-			Name string             `bson:"name"`
-		}
-
 		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 		defer cancel()
-		if _, err := col.InsertOne(ctx, user{Name: "mongodb"}); err != nil {
-			log.Fatal(err)
-		}
+		col.UpdateMany(ctx, bson.M{}, bson.M{})
 	}
 }
