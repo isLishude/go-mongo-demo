@@ -21,7 +21,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer cli.Disconnect(nil)
+	defer cli.Disconnect(context.Background())
 
 	col := cli.Database(dbName).Collection(colName)
 

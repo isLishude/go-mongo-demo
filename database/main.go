@@ -20,7 +20,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer cli.Disconnect(nil)
+	defer cli.Disconnect(context.Background())
 
 	// list databses
 	cli.ListDatabases(context.Background(), nil, nil)
